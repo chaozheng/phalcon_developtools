@@ -265,7 +265,6 @@ class Migrations
                 if (!$fileInfo->isFile() || 0 !== strcasecmp($fileInfo->getExtension(), 'php')) {
                     continue;
                 }
-
                 ModelMigration::migrate($fileInfo->getFilename(), $migrationsDir . DIRECTORY_SEPARATOR, $batch);
             }
         } else {

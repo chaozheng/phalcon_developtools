@@ -443,7 +443,7 @@ class Migration
         if (!self::checkMigrateFile($fileName)) {
             $migration = self::createClass($fileName, $migrationsDir);
 
-            self::updateMigrateBatch($fileName, $batch);
+
             if (is_object($migration)) {
                 // morph the table structure
                 if (method_exists($migration, 'morph')) {
@@ -452,7 +452,16 @@ class Migration
 
                 // modify the datasets
                 if (method_exists($migration, 'up')) {
-                    $migration->up();
+                    try{
+                        $migration->up();
+                        self::updateMigrateBatch($fileName, $batch);
+                    }catch (Exception $exception) {
+                        if (method_exists($migration, 'down')) {
+                            $migration->down();
+                        }
+                        self::rollback($migrationsDir,$fileName, $batch);
+                    }
+
                     if (method_exists($migration, 'afterUp')) {
                         $migration->afterUp();
                     }
